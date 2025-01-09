@@ -2,21 +2,24 @@
 
 public static class FileManager
 {
-    const string refSchemaExtractFileName = "d:\\Test\\ExtractedRefSchemas.txt";
+    const string refSchemaExtractFileName = "C:\\DotnetProjects8\\Test\\ExtractedRefSchemas.txt";
 
-    const string jsonRawFileName = "d:\\Test\\TeckproRaw.json";
-    const string jsonAddNulllableFileName = "d:\\Test\\TeckproMiddle1-AddNullable.json";
-    const string jsonRemoveAllOfFileName = "d:\\Test\\TeckproMiddle2-RemoveAllOf.json";
-    const string jsonFinalFileName = "d:\\Test\\TeckproFinal.json";
+    const string jsonRawFileName = "C:\\DotnetProjects8\\Test\\TeckproRaw.json";
+    const string jsonExamplesWithRefFileName = "C:\\DotnetProjects8\\Test\\TeckproMiddle0-RemoveExampleWithRef.json";
+    const string jsonAddNulllableFileName = "C:\\DotnetProjects8\\Test\\TeckproMiddle1-AddNullable.json";
+    const string jsonRemoveAllOfFileName = "C:\\DotnetProjects8\\Test\\TeckproMiddle2-RemoveAllOf.json";
+    const string jsonFinalFileName = "C:\\DotnetProjects8\\Test\\TeckproFinal.json";
 
     const string refSchemaConst = "\"$ref\" : \"#/components/schemas/";
+    const string exampleWithRefConst = "\"$ref\" : \"../examples";
+    const string exampleWithRefCorrectedLineConst = "\"a\" : \"b\"";
     const string allOfConst = "\"allOf\" : [ {";
     const string commaConst = ",";
     const string newNullableLine = "        \"nullable\": true, ";
 
     const string monetaryAmountLine = "\"#/components/schemas/MonetaryAmount\"";
     const string monetaryAmountNewLine = "            \"type\" : \"string\"";
-    
+
     private static bool ExtractRefSchemaItems()
     {
         try
@@ -34,7 +37,7 @@ public static class FileManager
                 {
                     line = line.Substring(line.LastIndexOf("/") + 1);
 
-                    line = $"\"{ line} : {{";
+                    line = $"\"{line} : {{";
                     sw.WriteLine(line);
                 }
 
@@ -83,6 +86,49 @@ public static class FileManager
         return null;
     }
 
+
+    public static bool RemoveExamplesWithRefFromJsonFile()
+    {
+        try
+        {
+            string? line;
+
+            StreamReader sr = new StreamReader(jsonRawFileName);
+            StreamWriter sw = new StreamWriter(jsonExamplesWithRefFileName);
+
+            line = sr.ReadLine();
+
+            while (line is not null)
+            {
+                if (!line.Contains(exampleWithRefConst))
+                {
+                    sw.WriteLine(line);
+                }
+                else
+                {
+                    sw.WriteLine(exampleWithRefCorrectedLineConst);
+                }
+
+                line = sr.ReadLine();
+            }
+
+            sr.Close();
+            sw.Close();
+
+            Console.WriteLine("Remove examples with Ref from json file was done!");
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Exception: {e.Message}");
+        }
+
+        return false;
+    }
+
+
+
     public static bool AddNullableToJsonFile()
     {
         try
@@ -96,7 +142,7 @@ public static class FileManager
 
             string? line;
 
-            StreamReader sr = new StreamReader(jsonRawFileName);
+            StreamReader sr = new StreamReader(jsonExamplesWithRefFileName);
             StreamWriter sw = new StreamWriter(jsonAddNulllableFileName);
 
             var refSchemas = GetRefSchemaItems();
